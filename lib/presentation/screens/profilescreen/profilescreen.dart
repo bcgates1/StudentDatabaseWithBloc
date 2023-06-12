@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:week17studentdatabaseusinghive/application/bloc/student_bloc.dart';
+import 'package:week17studentdatabaseusinghive/application/image_bloc/bloc/image_bloc.dart';
 import 'package:week17studentdatabaseusinghive/domain/hive_model/model.dart';
 import 'package:week17studentdatabaseusinghive/presentation/screens/editingscreen/editscreen.dart';
 
@@ -21,8 +22,15 @@ class ProfileScrn extends StatelessWidget {
           IconButton(
               onPressed: () {
                 Navigator.of(context).pushReplacement(MaterialPageRoute(
-                  builder: (_) => BlocProvider.value(
-                    value: BlocProvider.of<StudentBloc>(context),
+                  builder: (_) => MultiBlocProvider(
+                    providers: [
+                      BlocProvider.value(
+                          value: BlocProvider.of<StudentBloc>(context)),
+                      BlocProvider(
+                        create: (context) => ImageBloc(),
+                      )
+                    ],
+                    // value: BlocProvider.of<StudentBloc>(context),
                     child: EditScrn(
                       profile: profile,
                       profileindex: profileindex,

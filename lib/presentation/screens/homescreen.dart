@@ -2,11 +2,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:week17studentdatabaseusinghive/application/bloc/student_bloc.dart';
+import 'package:week17studentdatabaseusinghive/application/image_bloc/bloc/image_bloc.dart';
 import 'package:week17studentdatabaseusinghive/presentation/screens/addscreen/addscreens.dart';
 import 'package:week17studentdatabaseusinghive/presentation/screens/profilescreen/profilescreen.dart';
 import 'package:week17studentdatabaseusinghive/presentation/screens/search/search_scrn.dart';
 
-// ValueNotifier<List<StudentModel>> studentlist = ValueNotifier([]);
+
 
 class MyHome extends StatelessWidget {
   const MyHome({super.key});
@@ -24,7 +25,7 @@ class MyHome extends StatelessWidget {
               onPressed: () {
                 Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) => BlocProvider.value(
-                    value:BlocProvider.of<StudentBloc>(context),
+                    value: BlocProvider.of<StudentBloc>(context),
                     child: SearchScreen(),
                   ),
                 ));
@@ -96,8 +97,14 @@ class MyHome extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
           onPressed: () {
             Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => BlocProvider.value(
-                value: BlocProvider.of<StudentBloc>(context),
+              builder: (_) => MultiBlocProvider(
+                providers: [
+                  BlocProvider.value(
+                      value: BlocProvider.of<StudentBloc>(context)),
+                  BlocProvider(
+                    create: (context) => ImageBloc(),
+                  )
+                ],
                 child: AddScreen(),
               ),
             ));

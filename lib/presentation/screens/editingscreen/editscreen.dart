@@ -1,12 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:week17studentdatabaseusinghive/application/bloc/student_bloc.dart';
+import 'package:week17studentdatabaseusinghive/application/image_bloc/bloc/image_bloc.dart';
 import 'package:week17studentdatabaseusinghive/domain/hive_model/model.dart';
 
 class EditScrn extends StatelessWidget {
-  final ValueNotifier<String?> imagerebuilder = ValueNotifier(null);
   final TextEditingController namecontroller = TextEditingController();
   final TextEditingController agecontroller = TextEditingController();
   final TextEditingController phonecontroller = TextEditingController();
@@ -21,8 +20,9 @@ class EditScrn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    imagerebuilder.value = profile.path;
+    BlocProvider.of<ImageBloc>(context).add(ImageEditor(imgpath: profile.path));
     bool iscontaining = false;
+    String? imagepath;
 
     namecontroller.text = profile.name;
     agecontroller.text = profile.age.toString();
@@ -44,16 +44,17 @@ class EditScrn extends StatelessWidget {
                 width: double.infinity,
                 child: InkWell(
                   onTap: () {
-                    getimage();
+                    BlocProvider.of<ImageBloc>(context).add(ImageSelector());
                   },
-                  child: ValueListenableBuilder(
-                      valueListenable: imagerebuilder,
-                      builder: (context, value, child) {
-                        return CircleAvatar(
-                          radius: 150,
-                          backgroundImage: imageselector(),
-                        );
-                      }),
+                  child: BlocBuilder<ImageBloc, ImageState>(
+                    builder: (context, state) {
+                      imagepath = state.path;
+                      return CircleAvatar(
+                        radius: 150,
+                        backgroundImage: imageselector(state.path),
+                      );
+                    },
+                  ),
                 ),
               ),
               heightbox(30),
@@ -76,7 +77,7 @@ class EditScrn extends StatelessWidget {
                             emailformkey.currentState!.validate()) {
                           List<StudentModel> templist =
                               templistvalueassigning(state.studentlist);
-                          iscontaining = updatechecking(templist);
+                          iscontaining = updatechecking(templist, imagepath);
                           if (!iscontaining) {
                             BlocProvider.of<StudentBloc>(context).add(
                                 StudentEdit(
@@ -114,7 +115,7 @@ class EditScrn extends StatelessWidget {
     ));
   }
 
-  bool updatechecking(List<StudentModel> templist) {
+  bool updatechecking(List<StudentModel> templist, String? imagepath) {
     bool iscontaining = false;
     if (nameformkey.currentState!.validate() &&
         ageformkey.currentState!.validate() &&
@@ -124,7 +125,7 @@ class EditScrn extends StatelessWidget {
       profile.age = int.parse(agecontroller.text);
       profile.phone = int.parse(phonecontroller.text);
       profile.email = emailcontroller.text;
-      profile.path = imagerebuilder.value;
+      profile.path = imagepath;
     }
     if (templist.isNotEmpty) {
       for (StudentModel item in templist) {
@@ -150,14 +151,6 @@ class EditScrn extends StatelessWidget {
       }
     }
     return templist;
-  }
-
-  getimage() async {
-    final picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-    if (image?.path != null) {
-      imagerebuilder.value = image?.path;
-    }
   }
 
   Widget heightbox(double height) {
@@ -236,11 +229,11 @@ class EditScrn extends StatelessWidget {
     return null;
   }
 
-  ImageProvider imageselector() {
-    if (imagerebuilder.value == null) {
+  ImageProvider imageselector(String? path) {
+    if (path == null) {
       return const AssetImage('assets/unknown.jpg');
     } else {
-      return FileImage(File(imagerebuilder.value!));
+      return FileImage(File(path));
     }
   }
 }

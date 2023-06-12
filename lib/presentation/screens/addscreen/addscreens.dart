@@ -1,11 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:week17studentdatabaseusinghive/application/bloc/student_bloc.dart';
 import 'package:week17studentdatabaseusinghive/application/image_bloc/bloc/image_bloc.dart';
 import 'package:week17studentdatabaseusinghive/domain/hive_model/model.dart';
-import 'package:week17studentdatabaseusinghive/infrastructure/functions.dart';
 
 class AddScreen extends StatelessWidget {
   AddScreen({super.key});
@@ -20,7 +18,7 @@ class AddScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String? localImagePath=null;
+    String? localImagePath;
     return SafeArea(
         child: Scaffold(
       appBar: AppBar(
@@ -34,14 +32,14 @@ class AddScreen extends StatelessWidget {
               height: 350,
               child: Center(
                 child: InkWell(
-                  onTap: () => getimage(),
+                  onTap: () =>BlocProvider.of<ImageBloc>(context).add(ImageSelector()),
                   child: BlocBuilder<ImageBloc, ImageState>(
-                    builder: (context, state) {
-                      localImagePath=state.path;
+                    builder: (context, imagestate) {
+                      localImagePath=imagestate.path;
                       return CircleAvatar(
                         backgroundColor: Colors.grey,
                         radius: 150,
-                        backgroundImage: imageselector(state.path),
+                        backgroundImage: imageselector(imagestate.path),
                       );
                     },
                   ),
